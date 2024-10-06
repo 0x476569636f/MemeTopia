@@ -1,20 +1,19 @@
-import { Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
 import React from 'react';
-import ScreenWrapper from '~/components/ScreenWrapper';
-import { ThemeToggle } from '~/components/ThemeToggle';
+import ScreenWrapper from '~/components/ScreenWrapperWithNavbar';
+import { Button } from '~/components/nativewindui/Button';
+import { Text } from '~/components/nativewindui/Text';
 
-const index = () => {
+const Index = () => {
+  const router = useRouter();
   return (
     <ScreenWrapper>
-      <View className="flex w-full flex-row items-center justify-between bg-background p-4">
-        <Text className="text-xl text-foreground">Tes tailwind</Text>
-        <ThemeToggle />
-      </View>
-      <View className="m-auto flex items-center justify-center">
-        <Text className="text-4xl text-foreground">Hallo, Dunia!</Text>
-      </View>
+      <Text variant={'title1'}>Hallo, Dunia!</Text>
+      <Button onPress={() => router.push('/welcome')}>
+        <Text>Hallo, Dunia!</Text>
+      </Button>
     </ScreenWrapper>
   );
 };
 
-export default index;
+export default Index;
