@@ -18,7 +18,7 @@ export function ThemeToggle() {
           {colorScheme === 'dark'
             ? ({ pressed }) => (
                 <View className={cn('px-0.5', pressed && 'opacity-50')}>
-                  <Icon namingScheme="sfSymbol" name="moon.stars" color={COLORS.white} />
+                  <Icon namingScheme="sfSymbol" name="moon.fill" color={COLORS.dark.primary} />
                 </View>
               )
             : ({ pressed }) => (
