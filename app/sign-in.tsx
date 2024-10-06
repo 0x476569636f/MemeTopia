@@ -1,11 +1,13 @@
-import { Text } from 'react-native';
+import { useRouter } from 'expo-router';
 import React from 'react';
+import { BackButton } from '~/components/BackButton';
 import ScreenWrapper from '~/components/ScreenWrapperWithNavbar';
 
 const SignIn = () => {
+  const router = useRouter();
   return (
     <ScreenWrapper>
-      <Text>SignIn</Text>
+      <BackButton onPress={() => router.back()} />
     </ScreenWrapper>
   );
 };
