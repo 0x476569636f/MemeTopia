@@ -1,23 +1,18 @@
 import { Feather } from '@expo/vector-icons';
-import { Text, View, StyleSheet } from 'react-native';
+import { View } from 'react-native';
+import { useColorScheme } from '~/lib/useColorScheme';
+import { COLORS } from '~/theme/colors';
 
 export const BackButton = ({ onPress }: { onPress: () => void }) => {
+  const { isDarkColorScheme } = useColorScheme();
   return (
-    <View style={styles.backButton}>
-      <Feather name="chevron-left" size={16} color="#007AFF" />
-      <Text style={styles.backButtonText} onPress={onPress}>
-        Back
-      </Text>
+    <View className="flex flex-row px-4">
+      <Feather
+        name="arrow-left"
+        size={28}
+        color={isDarkColorScheme ? COLORS.dark.primary : COLORS.black}
+        onPress={onPress}
+      />
     </View>
   );
 };
-const styles = StyleSheet.create({
-  backButton: {
-    flexDirection: 'row',
-    paddingLeft: 20,
-  },
-  backButtonText: {
-    color: '#007AFF',
-    marginLeft: 4,
-  },
-});
