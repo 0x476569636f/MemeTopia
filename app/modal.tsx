@@ -1,5 +1,6 @@
 import { Icon } from '@roninoss/icons';
 import { StatusBar } from 'expo-status-bar';
+import React from 'react';
 import { Linking, Platform, View } from 'react-native';
 
 import { Text } from '~/components/nativewindui/Text';
