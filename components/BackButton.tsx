@@ -6,7 +6,7 @@ import { COLORS } from '~/theme/colors';
 export const BackButton = ({ onPress }: { onPress: () => void }) => {
   const { isDarkColorScheme } = useColorScheme();
   return (
-    <View className="flex flex-row px-4">
+    <View className="flex flex-row">
       <Feather
         name="arrow-left"
         size={28}
