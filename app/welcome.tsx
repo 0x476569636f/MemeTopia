@@ -27,9 +27,9 @@ const Welcome = () => {
           </Button>
         </View>
         <View className="mb-6 flex flex-row items-center gap-1">
-          <Text variant={'footnote'}>Sudah punya akun?</Text>
+          <Text variant={'subhead'}>Sudah punya akun?</Text>
           <Pressable onPress={() => router.push('/sign-in')}>
-            <Text variant={'footnote'} className="font-semibold text-primary">
+            <Text variant={'subhead'} className="font-semibold text-primary">
               Masuk
             </Text>
           </Pressable>
