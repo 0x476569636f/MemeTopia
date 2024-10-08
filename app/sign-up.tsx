@@ -11,6 +11,7 @@ import * as yup from 'yup';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Button } from '~/components/nativewindui/Button';
+import Loading from '~/components/Loading';
 
 const schema = yup.object().shape({
   name: yup.string().required('* Nama harus di isi').min(3, 'Nama minimal 3 karakter'),
@@ -22,6 +23,7 @@ const schema = yup.object().shape({
 const SignUp = () => {
   const { isDarkColorScheme } = useColorScheme();
   const router = useRouter();
+  const [loading, setLoading] = React.useState(false);
 
   const {
     control,
@@ -164,8 +166,8 @@ const SignUp = () => {
             )}
           </View>
 
-          <Button onPress={handleSubmit(onPressSend)}>
-            <Text>Daftar Sekarang</Text>
+          <Button onPress={handleSubmit(onPressSend)} disabled={loading}>
+            {loading ? <Loading /> : <Text>Daftar Sekarang</Text>}
           </Button>
         </View>
       </View>

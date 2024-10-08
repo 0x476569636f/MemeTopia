@@ -11,6 +11,7 @@ import * as yup from 'yup';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Button } from '~/components/nativewindui/Button';
+import Loading from '~/components/Loading';
 
 const schema = yup.object().shape({
   email: yup.string().required('* Email harus di isi').email('Invalid email'),
@@ -20,6 +21,7 @@ const schema = yup.object().shape({
 const SignIn = () => {
   const { isDarkColorScheme } = useColorScheme();
   const router = useRouter();
+  const [loading, setLoading] = React.useState(false);
 
   const {
     control,
@@ -106,8 +108,8 @@ const SignIn = () => {
               </Text>
             )}
           </View>
-          <Button onPress={handleSubmit(onPressSend)}>
-            <Text>Daftar Sekarang</Text>
+          <Button onPress={handleSubmit(onPressSend)} disabled={loading}>
+            {loading ? <Loading /> : <Text>Masuk</Text>}
           </Button>
         </View>
       </View>
