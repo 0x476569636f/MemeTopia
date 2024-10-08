@@ -1,4 +1,4 @@
-import { View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 import React from 'react';
 import ScreenWrapper from '~/components/ScreenWrapperWithNavbar';
 import { BackButton } from '~/components/BackButton';
@@ -42,78 +42,84 @@ const SignIn = () => {
   };
 
   return (
-    <ScreenWrapper>
-      <View className="flex flex-1 gap-11 px-3">
-        <BackButton onPress={() => router.back()} />
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <ScreenWrapper>
+        <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', padding: 16 }}>
+          <View className="flex flex-1 gap-11 px-3">
+            <BackButton onPress={() => router.back()} />
 
-        <View className="gap-y-1">
-          <Text className="text-3xl font-bold">Selamat Datang Kembali!</Text>
-          <Text className="text-lg font-normal tracking-wide">
-            Masuk untuk Melanjutkan dan Bagikan Tawa Bersama Kami!
-          </Text>
-        </View>
-        <View className="gap-8 rounded-xl border border-border bg-card p-4 pb-6">
-          <View className="mt-4 gap-2">
-            <Controller
-              control={control}
-              rules={{
-                required: true,
-              }}
-              render={({ field: { onChange, value } }) => (
-                <Input
-                  icon={
-                    <AntDesign
-                      name="mail"
-                      size={24}
-                      color={isDarkColorScheme ? 'white' : 'black'}
-                    />
-                  }
-                  placeholder="Masukan Email Anda"
-                  value={value}
-                  onChangeText={onChange}
-                />
-              )}
-              name="email"
-            />
-            {errors.email && (
-              <Text variant={'footnote'} className="text-red-500">
-                {errors.email.message}
+            <View className="gap-y-1">
+              <Text className="text-3xl font-bold">Selamat Datang Kembali!</Text>
+              <Text className="text-lg font-normal tracking-wide">
+                Masuk untuk Melanjutkan dan Bagikan Tawa Bersama Kami!
               </Text>
-            )}
-            <Controller
-              control={control}
-              rules={{
-                required: true,
-              }}
-              render={({ field: { onChange, value } }) => (
-                <Input
-                  icon={
-                    <AntDesign
-                      name="lock"
-                      size={24}
-                      color={isDarkColorScheme ? 'white' : 'black'}
+            </View>
+            <View className="gap-8 rounded-xl border border-border bg-card p-4 pb-6">
+              <View className="mt-4 gap-2">
+                <Controller
+                  control={control}
+                  rules={{
+                    required: true,
+                  }}
+                  render={({ field: { onChange, value } }) => (
+                    <Input
+                      icon={
+                        <AntDesign
+                          name="mail"
+                          size={24}
+                          color={isDarkColorScheme ? 'white' : 'black'}
+                        />
+                      }
+                      placeholder="Masukan Email Anda"
+                      value={value}
+                      onChangeText={onChange}
                     />
-                  }
-                  placeholder="Masukan Password"
-                  value={value}
-                  onChangeText={onChange}
-                  secureTextEntry
+                  )}
+                  name="email"
                 />
-              )}
-              name="password"
-            />
-            {errors.password && (
-              <Text variant={'footnote'} className="text-red-500">
-                {errors.password.message}
-              </Text>
-            )}
+                {errors.email && (
+                  <Text variant={'footnote'} className="text-red-500">
+                    {errors.email.message}
+                  </Text>
+                )}
+                <Controller
+                  control={control}
+                  rules={{
+                    required: true,
+                  }}
+                  render={({ field: { onChange, value } }) => (
+                    <Input
+                      icon={
+                        <AntDesign
+                          name="lock"
+                          size={24}
+                          color={isDarkColorScheme ? 'white' : 'black'}
+                        />
+                      }
+                      placeholder="Masukan Password"
+                      value={value}
+                      onChangeText={onChange}
+                      secureTextEntry
+                    />
+                  )}
+                  name="password"
+                />
+                {errors.password && (
+                  <Text variant={'footnote'} className="text-red-500">
+                    {errors.password.message}
+                  </Text>
+                )}
+              </View>
+              <Button onPress={handleSubmit(onPressSend)} disabled={loading}>
+                {loading ? <Loading /> : <Text>Masuk</Text>}
+              </Button>
+            </View>
           </View>
-          <Button onPress={handleSubmit(onPressSend)} disabled={loading}>
-            {loading ? <Loading /> : <Text>Masuk</Text>}
-          </Button>
-        </View>
-      </View>
-    </ScreenWrapper>
+        </ScrollView>
+      </ScreenWrapper>
+    </KeyboardAvoidingView>
   );
 };
 
