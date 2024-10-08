@@ -12,6 +12,9 @@ import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Button } from '~/components/nativewindui/Button';
 import Loading from '~/components/Loading';
+import { supabase } from '~/lib/supabase';
+import { type AuthError } from '@supabase/supabase-js';
+import Alert from '~/components/Alert';
 
 const schema = yup.object().shape({
   email: yup.string().required('* Email harus di isi').email('Invalid email'),
@@ -22,6 +25,8 @@ const SignIn = () => {
   const { isDarkColorScheme } = useColorScheme();
   const router = useRouter();
   const [loading, setLoading] = React.useState(false);
+  const [errorState, setErrorState] = React.useState(false);
+  const [errorObj, setErrorObj] = React.useState<AuthError | null>(null);
 
   const {
     control,
@@ -37,9 +42,39 @@ const SignIn = () => {
 
   type FormData = yup.InferType<typeof schema>;
 
-  const onPressSend = (formData: FormData) => {
-    console.log('formData', formData.email);
+  const onPressSend = async (formData: FormData) => {
+    const email = formData.email.trim();
+    const password = formData.password.trim();
+
+    setLoading(true);
+
+    const {
+      error,
+      data: { session },
+    } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    setLoading(false);
+    if (error) {
+      setErrorState(true);
+      setErrorObj(error);
+      return;
+    }
+    console.log(session);
   };
+
+  if (errorState) {
+    return (
+      <Alert
+        visible={errorState}
+        onClose={() => setErrorState(false)}
+        title="Gagal Masuk"
+        message={errorObj?.message || 'Terjadi kesalahan saat masuk'}
+      />
+    );
+  }
 
   return (
     <KeyboardAvoidingView
