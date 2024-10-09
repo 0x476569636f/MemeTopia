@@ -16,6 +16,8 @@ import { NAV_THEME } from '~/theme';
 import React, { useEffect } from 'react';
 import { AuthProvider, useAuth } from '~/context/auth';
 import { supabase } from '~/lib/supabase';
+import { User } from '@supabase/supabase-js';
+import { getUserData } from '~/functions/user';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -70,13 +72,14 @@ const _layout = () => {
 };
 
 const MainLayout = () => {
-  const { setAuth }: any = useAuth();
+  const { setAuth, setUserData }: any = useAuth();
   const router = useRouter();
 
   useEffect(() => {
     supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
         setAuth(session?.user);
+        updateUserData(session?.user);
         router.replace('/home');
       } else {
         setAuth(null);
@@ -84,6 +87,14 @@ const MainLayout = () => {
       }
     });
   }, []);
+
+  const updateUserData = async (user: User) => {
+    const res = await getUserData(user?.id);
+    if (res.success) {
+      setUserData(res.data);
+    }
+  };
+
   return (
     <Stack
       screenOptions={{
