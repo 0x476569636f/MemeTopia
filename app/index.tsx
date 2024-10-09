@@ -1,18 +1,14 @@
-import { useRouter } from 'expo-router';
+import { View } from 'react-native';
 import React from 'react';
-import ScreenWrapper from '~/components/ScreenWrapperWithNavbar';
-import { Button } from '~/components/nativewindui/Button';
-import { Text } from '~/components/nativewindui/Text';
+import Loading from '~/components/Loading';
+import { useColorScheme } from '~/lib/useColorScheme';
 
 const Index = () => {
-  const router = useRouter();
+  const { isDarkColorScheme } = useColorScheme();
   return (
-    <ScreenWrapper>
-      <Text variant={'title1'}>Hallo, Dunia!</Text>
-      <Button onPress={() => router.push('/welcome')}>
-        <Text>Hallo, Dunia!</Text>
-      </Button>
-    </ScreenWrapper>
+    <View className="flex flex-1 items-center justify-center">
+      <Loading color={isDarkColorScheme ? '#FFFFFF' : '#000000'} size={50} />
+    </View>
   );
 };
 
