@@ -6,8 +6,16 @@ export const getUserData = async (userId: string) => {
     if (error) {
       return { success: false, msg: error.message };
     }
-    return { success: false, data: data };
+    return { success: true, data: data };
   } catch (error: any) {
     return { success: false, msg: error.message };
+  }
+};
+
+export const getUserImageSrc = (imagePath: string) => {
+  if (imagePath) {
+    return { uri: imagePath };
+  } else {
+    return require('~/assets/bg.png');
   }
 };
