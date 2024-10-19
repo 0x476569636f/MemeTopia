@@ -19,3 +19,15 @@ export const getUserImageSrc = (imagePath: string) => {
     return require('~/assets/bg.png');
   }
 };
+
+export const updateUser = async (userId: string, data: any) => {
+  try {
+    const { error } = await supabase.from('users').update(data).eq('id', userId);
+    if (error) {
+      return { success: false, msg: error.message };
+    }
+    return { success: true, data };
+  } catch (error: any) {
+    return { success: false, msg: error.message };
+  }
+};
