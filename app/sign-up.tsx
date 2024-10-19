@@ -17,7 +17,11 @@ import Alert from '~/components/Alert';
 import { type AuthError } from '@supabase/supabase-js';
 
 const schema = yup.object().shape({
-  name: yup.string().required('* Nama harus di isi').min(3, 'Nama minimal 3 karakter'),
+  name: yup
+    .string()
+    .required('* Nama harus di isi')
+    .min(3, 'Nama minimal 3 karakter')
+    .max(20, 'Nama maksimal 20 karakter'),
   email: yup.string().required('* Email harus di isi').email('Invalid email'),
   password: yup.string().required('* Password harus di isi').min(8, 'Password minimal 8 karakter'),
   confirmPassword: yup.string().oneOf([yup.ref('password')], '* Password tidak sama'),
