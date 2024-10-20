@@ -9,13 +9,14 @@ type AvatarProps = {
   size?: number;
   style?: any;
   className?: string;
+  source?: string;
 };
 
-const Avatar: React.FC<AvatarProps> = ({ uri, size = hp(4.5), style, className }) => {
+const Avatar: React.FC<AvatarProps> = ({ uri, size = hp(4.5), style, className, source }) => {
   const { isDarkColorScheme } = useColorScheme();
   return (
     <Image
-      source={getUserImageSrc(uri)}
+      source={source ? source : getUserImageSrc(uri)}
       transition={100}
       style={{
         width: size,
