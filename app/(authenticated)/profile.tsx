@@ -38,7 +38,7 @@ const Profile = () => {
         <View className="rounded-3xl bg-card">
           <View className="flex items-center justify-center">
             <View className="m-3">
-              <Avatar uri={user?.avatar} size={hp(15)} />
+              <Avatar uri={user?.image} size={hp(15)} />
             </View>
             <Text variant={'body'} className="font-bold">
               {user?.name.toUpperCase()}
