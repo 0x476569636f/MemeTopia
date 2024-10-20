@@ -1,4 +1,6 @@
 import { supabase } from '~/lib/supabase';
+import { Asset } from 'expo-asset';
+import { getSupabaseFileUrl } from './storage';
 
 export const getUserData = async (userId: string) => {
   try {
@@ -14,9 +16,9 @@ export const getUserData = async (userId: string) => {
 
 export const getUserImageSrc = (imagePath: string) => {
   if (imagePath) {
-    return { uri: imagePath };
+    return getSupabaseFileUrl(imagePath);
   } else {
-    return require('~/assets/bg.png');
+    return Asset.fromModule(require('../assets/bg.png')).uri;
   }
 };
 
