@@ -1,5 +1,5 @@
 import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from 'react-native';
-import React, { useEffect } from 'react';
+import React from 'react';
 import ScreenWrapper from '~/components/ScreenWrapperWithNavbar';
 import { Text } from '~/components/nativewindui/Text';
 import { BackButton } from '~/components/BackButton';
