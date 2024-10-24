@@ -103,7 +103,7 @@ const EditProfile = () => {
         <ScrollView contentContainerStyle={{ padding: 16 }}>
           <View className="flex flex-col">
             <View className="p-3">
-              <BackButton onPress={() => router.push('/profile')} />
+              <BackButton onPress={() => router.back()} />
             </View>
             <View className="items-center justify-center">
               <Avatar
