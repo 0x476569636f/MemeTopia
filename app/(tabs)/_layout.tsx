@@ -38,12 +38,6 @@ const _layout = () => {
           tabBarIcon: ({ color, size }) => <AntDesign name="user" size={size} color={color} />,
         }}
       />
-      <Tabs.Screen
-        name="edit-profile"
-        options={{
-          tabBarItemStyle: { display: 'none' },
-        }}
-      />
     </Tabs>
   );
 };
