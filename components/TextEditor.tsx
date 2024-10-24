@@ -24,6 +24,7 @@ const TextEditor = React.forwardRef<TextInput, TextEditorProps>(
           style={styles.input}
           textAlignVertical="top"
           {...props}
+          className="text-foreground"
         />
       </View>
     );
