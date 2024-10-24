@@ -26,6 +26,7 @@ import { Button } from '~/components/nativewindui/Button';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { Video } from 'expo-av';
 import { createOrUpdatePost } from '~/functions/post';
+import Loading from '~/components/Loading';
 
 const NewPost = () => {
   const router = useRouter();
@@ -171,7 +172,7 @@ const NewPost = () => {
           </View>
           <View style={{ marginTop: 16 }}>
             <Button onPress={onSubmit} disabled={loading}>
-              <Text>Post</Text>
+              {loading ? <Loading /> : <Text>Post</Text>}
             </Button>
           </View>
         </ScrollView>
