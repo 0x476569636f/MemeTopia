@@ -1,5 +1,5 @@
-import { View, Alert, Pressable } from 'react-native';
-import React from 'react';
+import { View, Alert, Pressable, FlatList, StyleSheet, RefreshControl } from 'react-native';
+import React, { useEffect } from 'react';
 import { useAuth } from '~/context/auth';
 import { supabase } from '~/lib/supabase';
 import { Button } from '~/components/nativewindui/Button';
@@ -9,65 +9,98 @@ import { ScrollView } from 'react-native-gesture-handler';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { useRouter } from 'expo-router';
+import { fetchPost } from '~/functions/post';
+import PostCard from '~/components/PostCard';
+import { wp } from '~/lib/common';
+import Loading from '~/components/Loading';
+import { getUserData } from '~/functions/user';
+
+let limit = 0;
 
 const Home = () => {
   const { user, setAuth }: any = useAuth();
   const { isDarkColorScheme } = useColorScheme();
   const router = useRouter();
+  const [refreshing, setRefreshing] = React.useState(false);
 
-  const logout = async () => {
-    setAuth(null);
-    const { error } = await supabase.auth.signOut();
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+    limit = 0;
+    try {
+      const res = await fetchPost(10);
+      if (res.success) {
+        setPosts(res.data);
+      }
+    } catch (error) {
+      console.error('Refresh error:', error);
+      Alert.alert('Error', 'Failed to refresh posts');
+    } finally {
+      setRefreshing(false);
+    }
+  }, []);
 
-    if (error) {
-      Alert.alert('Error', error.message);
+  const [posts, setPosts] = React.useState<any[] | undefined>([]);
+
+  const handlePostEvent = async (payload: any) => {
+    console.log(payload);
+    if (payload.eventType == 'INSERT') {
+      let newPost = { ...payload.new };
+      let res = await getUserData(newPost.userId);
+      newPost.user = res.success ? res.data : {};
+      setPosts((prevPost = []) => [newPost, ...prevPost]);
+    }
+  };
+
+  useEffect(() => {
+    let postChannel = supabase
+      .channel('posts')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, handlePostEvent)
+      .subscribe();
+    getPost();
+
+    return () => {
+      postChannel.unsubscribe();
+    };
+  }, []);
+
+  const getPost = async () => {
+    limit = limit + 10;
+    let res = await fetchPost(limit);
+    if (res.success) {
+      setPosts(res.data);
     }
   };
 
   return (
     <ScreenWrapper routeName="Home">
       <View style={{ flex: 1 }}>
-        <ScrollView contentContainerStyle={{ padding: 16 }}>
-          <Text>Home</Text>
-          {user && (
-            <Text>
-              Welcome, Lorem ipsum dolor, sit amet consectetur adipisicing elit. Maiores quidem
-              voluptate et nesciunt natus iste non laborum amet animi nihil porro fugiat sunt
-              itaque, ea quibusdam distinctio qui aspernatur nemo? Lorem ipsum dolor sit amet
-              consectetur, adipisicing elit. Totam maxime quas mollitia animi quos adipisci amet
-              quasi et, laboriosam saepe facere voluptatibus, dolorum aspernatur, eligendi
-              voluptatum quidem exercitationem. Eaque, quaerat. Delectus atque odio laborum,
-              dignissimos soluta maiores inventore ut, quia ipsa rerum alias cumque necessitatibus
-              nam voluptate dolores dolore commodi animi quod quos adipisci consequatur obcaecati
-              fuga repellat mollitia. Voluptatibus. A ipsa hic dolores nostrum, blanditiis tempore
-              vel atque doloremque labore expedita libero repudiandae soluta cupiditate repellendus
-              quasi quisquam magni maxime. Error eaque commodi doloribus aliquam eligendi suscipit
-              omnis accusamus? Ut reprehenderit iste voluptate praesentium pariatur? Optio possimus
-              voluptates voluptate tempora quis aut veritatis inventore repellat soluta provident,
-              tenetur id dolores sapiente expedita sit ipsa incidunt debitis est voluptatibus
-              pariatur. Voluptas accusamus esse, eius necessitatibus atque maxime quae. Praesentium
-              ex adipisci officia, id, maiores facere perferendis reiciendis doloribus obcaecati
-              nisi, fuga vitae consectetur impedit at ratione esse. Culpa, maiores aliquid. Alias
-              vitae numquam deleniti est rem reprehenderit maxime quae perspiciatis. Ad eligendi
-              asperiores maiores incidunt deserunt exercitationem aliquam nostrum, nesciunt quas qui
-              voluptas cupiditate adipisci voluptatibus fugit omnis similique eius? Obcaecati eaque
-              architecto assumenda et dolore modi possimus facere tempora totam nam quibusdam
-              blanditiis repellendus tempore, soluta quidem velit suscipit eveniet, eos quis laborum
-              repellat quae. Voluptas eius quam ut. Rerum ipsa autem, officiis, dicta illum iusto
-              repellat praesentium totam eius aspernatur ullam in temporibus suscipit! Eos fugit
-              quod delectus obcaecati quae ullam a saepe beatae, eligendi, quis, sit minima! Nisi
-              corporis repellat blanditiis quia, incidunt nam nobis placeat. Laudantium,
-              consequuntur? Facere, magnam culpa cupiditate omnis ea distinctio. Illum dolorem
-              aspernatur accusantium maiores. Earum, id? Repellendus sint pariatur odio dolores.
-              Vitae recusandae aspernatur ipsum, officiis veniam iure aut odio commodi corporis
-              alias omnis ullam quam rem cumque mollitia pariatur. Ullam magnam delectus voluptate
-              minus facere veniam voluptatum voluptates vero quisquam!
-            </Text>
-          )}
-          <Button onPress={logout}>
-            <Text>Logout</Text>
-          </Button>
-        </ScrollView>
+        <FlatList
+          data={posts}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.listStyle}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => <PostCard item={item} currentUser={user} router={router} />}
+          ListFooterComponent={
+            <View style={{ marginVertical: posts?.length == 0 ? 200 : 30 }}>
+              <Loading />
+            </View>
+          }
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={['rgb(0, 123, 254)']}
+              tintColor={isDarkColorScheme ? 'rgb(0, 123, 254)' : '#000000'}
+            />
+          }
+          onEndReached={() => {
+            if (!refreshing) {
+              getPost();
+            }
+          }}
+          onEndReachedThreshold={0.5}
+        />
+
         <Pressable
           onPress={() => router.push('/new-post')}
           style={{
@@ -92,5 +125,12 @@ const Home = () => {
     </ScreenWrapper>
   );
 };
+
+const styles = StyleSheet.create({
+  listStyle: {
+    paddingTop: 20,
+    paddingHorizontal: wp(4),
+  },
+});
 
 export default Home;
