@@ -35,7 +35,7 @@ const Home = () => {
   const [visibleItems, setVisibleItems] = useState<string[]>([]);
 
   const viewabilityConfig: ViewabilityConfig = {
-    itemVisiblePercentThreshold: 50, // Item is considered visible when 50% is shown
+    itemVisiblePercentThreshold: 100,
   };
 
   const onViewableItemsChanged = React.useCallback(
