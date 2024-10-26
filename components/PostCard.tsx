@@ -9,6 +9,7 @@ import { Text } from './nativewindui/Text';
 import { Image } from 'expo-image';
 import { getSupabaseFileUrl } from '~/functions/storage';
 import { Video, ResizeMode, AVPlaybackStatus } from 'expo-av';
+import { useIsFocused } from '@react-navigation/native';
 
 let currentPlayingVideo: any = null;
 
@@ -27,6 +28,7 @@ const PostCard: React.FC<PostCardProps> = ({
   hasShadow = true,
   isVisible,
 }) => {
+  const isFocused = useIsFocused();
   const { isDarkColorScheme } = useColorScheme();
   const formattedDate = formatDate(item?.created_at);
   const videoRef = useRef<Video>(null);
@@ -39,26 +41,42 @@ const PostCard: React.FC<PostCardProps> = ({
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    const handleVideoVisibility = async () => {
+    const handleVideoPlayback = async () => {
       if (!videoRef.current) return;
 
       try {
-        if (isVisible) {
-          // Video is in view, play it
+        if (isVisible && isFocused) {
+          if (currentPlayingVideo && currentPlayingVideo !== videoRef.current) {
+            await currentPlayingVideo.pauseAsync();
+          }
+          currentPlayingVideo = videoRef.current;
           await videoRef.current.playAsync();
           setIsPlaying(true);
         } else {
-          // Video is out of view, pause it
           await videoRef.current.pauseAsync();
           setIsPlaying(false);
+          if (currentPlayingVideo === videoRef.current) {
+            currentPlayingVideo = null;
+          }
         }
       } catch (error) {
-        console.error('Error handling video visibility:', error);
+        console.error('Error handling video playback:', error);
       }
     };
 
-    handleVideoVisibility();
-  }, [isVisible]);
+    handleVideoPlayback();
+  }, [isVisible, isFocused]);
+
+  useEffect(() => {
+    return () => {
+      if (videoRef.current) {
+        videoRef.current.pauseAsync();
+        if (currentPlayingVideo === videoRef.current) {
+          currentPlayingVideo = null;
+        }
+      }
+    };
+  }, []);
 
   const animateHeart = () => {
     Animated.sequence([
