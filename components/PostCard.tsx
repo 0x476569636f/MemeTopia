@@ -17,9 +17,16 @@ interface PostCardProps {
   currentUser: any;
   router: any;
   hasShadow?: boolean;
+  isVisible?: boolean;
 }
 
-const PostCard: React.FC<PostCardProps> = ({ item, currentUser, router, hasShadow = true }) => {
+const PostCard: React.FC<PostCardProps> = ({
+  item,
+  currentUser,
+  router,
+  hasShadow = true,
+  isVisible,
+}) => {
   const { isDarkColorScheme } = useColorScheme();
   const formattedDate = formatDate(item?.created_at);
   const videoRef = useRef<Video>(null);
@@ -30,6 +37,28 @@ const PostCard: React.FC<PostCardProps> = ({ item, currentUser, router, hasShado
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    const handleVideoVisibility = async () => {
+      if (!videoRef.current) return;
+
+      try {
+        if (isVisible) {
+          // Video is in view, play it
+          await videoRef.current.playAsync();
+          setIsPlaying(true);
+        } else {
+          // Video is out of view, pause it
+          await videoRef.current.pauseAsync();
+          setIsPlaying(false);
+        }
+      } catch (error) {
+        console.error('Error handling video visibility:', error);
+      }
+    };
+
+    handleVideoVisibility();
+  }, [isVisible]);
 
   const animateHeart = () => {
     Animated.sequence([

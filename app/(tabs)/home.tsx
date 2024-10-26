@@ -1,5 +1,14 @@
-import { View, Alert, Pressable, FlatList, StyleSheet, RefreshControl } from 'react-native';
-import React, { useEffect } from 'react';
+import {
+  View,
+  Alert,
+  Pressable,
+  FlatList,
+  StyleSheet,
+  RefreshControl,
+  ViewabilityConfig,
+  ViewToken,
+} from 'react-native';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '~/context/auth';
 import { supabase } from '~/lib/supabase';
 import { Button } from '~/components/nativewindui/Button';
@@ -22,6 +31,20 @@ const Home = () => {
   const { isDarkColorScheme } = useColorScheme();
   const router = useRouter();
   const [refreshing, setRefreshing] = React.useState(false);
+
+  const [visibleItems, setVisibleItems] = useState<string[]>([]);
+
+  const viewabilityConfig: ViewabilityConfig = {
+    itemVisiblePercentThreshold: 50, // Item is considered visible when 50% is shown
+  };
+
+  const onViewableItemsChanged = React.useCallback(
+    ({ viewableItems }: { viewableItems: ViewToken[] }) => {
+      const visibleItemIds = viewableItems.map((item) => item.key);
+      setVisibleItems(visibleItemIds);
+    },
+    []
+  );
 
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
@@ -79,7 +102,17 @@ const Home = () => {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.listStyle}
           keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => <PostCard item={item} currentUser={user} router={router} />}
+          renderItem={({ item }) => (
+            <PostCard
+              item={item}
+              isVisible={visibleItems.includes(item.id.toString())}
+              currentUser={user}
+              router={router}
+            />
+          )}
+          viewabilityConfig={viewabilityConfig}
+          onViewableItemsChanged={onViewableItemsChanged}
+          scrollEventThrottle={16}
           ListFooterComponent={
             <View style={{ marginVertical: posts?.length == 0 ? 200 : 30 }}>
               <Loading />
