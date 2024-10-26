@@ -3,6 +3,7 @@ import { useColorScheme } from '~/lib/useColorScheme';
 
 type loadingProps = {
   size?: number | 'small' | 'large';
+  color?: string;
 };
 
 const Loading: React.FC<loadingProps> = ({ size = 'large' }) => {
