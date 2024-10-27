@@ -21,7 +21,6 @@ const Avatar: React.FC<AvatarProps> = ({ uri, size = hp(4.5), style, className, 
       style={{
         width: size,
         height: size,
-        borderWidth: 0.5,
         borderColor: isDarkColorScheme ? '#FFFFFF' : '#000000',
         borderRadius: 25,
         ...style,
