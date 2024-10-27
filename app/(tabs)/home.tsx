@@ -55,7 +55,6 @@ const Home = () => {
       const res = await fetchPost();
       if (res.success) {
         setPosts(res.data);
-        console.log('Posts:', res.data);
       }
     } catch (error) {
       console.error('Refresh error:', error);
@@ -66,7 +65,6 @@ const Home = () => {
   }, []);
 
   const handlePostEvent = async (payload: any) => {
-    console.log(payload);
     if (payload.eventType == 'INSERT') {
       let newPost = { ...payload.new };
       let res = await getUserData(newPost.userId);
@@ -96,8 +94,6 @@ const Home = () => {
       if (posts?.length == res?.data?.length) setHasMore(false);
       setPosts(res.data);
     }
-    console.log('Res:', res.data?.length);
-    console.log('Posts:', posts?.length);
   };
 
   return (

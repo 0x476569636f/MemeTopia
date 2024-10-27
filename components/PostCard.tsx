@@ -104,9 +104,7 @@ const PostCard: React.FC<PostCardProps> = ({
     setLikeCount((prev) => prev + (newLikeStatus ? 1 : -1));
     animateHeart();
     if (isLiked) {
-      console.log('Remove Like:', item?.id);
       const res = await removePostLike(item?.id, currentUser?.id);
-      console.log('Remove Like:', res);
       if (!res.success) {
         console.error('Error:', res.msg);
       }
@@ -118,7 +116,6 @@ const PostCard: React.FC<PostCardProps> = ({
     };
 
     const res = await createPostLike(data);
-    console.log('Like:', res);
     if (!res.success) {
       console.error('Error:', res.msg);
     }

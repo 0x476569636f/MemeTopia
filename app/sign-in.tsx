@@ -62,7 +62,6 @@ const SignIn = () => {
       setErrorObj(error);
       return;
     }
-    console.log(session);
   };
 
   if (errorState) {
