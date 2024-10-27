@@ -170,7 +170,12 @@ const NewPost = () => {
             )}
 
             <View style={styles.media}>
-              <Text variant={'caption1'}>Lampirkan meme yang ingin kamu bagikan.</Text>
+              {file ? (
+                <Text variant={'caption1'}>Ganti Lampiran</Text>
+              ) : (
+                <Text variant={'caption1'}>Lampirkan meme yang ingin kamu bagikan.</Text>
+              )}
+
               <View style={styles.mediaIcons}>
                 <TouchableOpacity onPress={onPick}>
                   <FontAwesome5
