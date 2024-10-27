@@ -31,7 +31,7 @@ const Home = () => {
   const { isDarkColorScheme } = useColorScheme();
   const router = useRouter();
   const [refreshing, setRefreshing] = React.useState(false);
-
+  const [posts, setPosts] = React.useState<any[] | undefined>([]);
   const [visibleItems, setVisibleItems] = useState<string[]>([]);
   const [hasMore, setHasMore] = useState(true);
 
@@ -50,10 +50,13 @@ const Home = () => {
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
     limit = 0;
+    setHasMore(true);
+
     try {
-      const res = await fetchPost(10);
+      const res = await fetchPost();
       if (res.success) {
         setPosts(res.data);
+        console.log('Posts:', res.data);
       }
     } catch (error) {
       console.error('Refresh error:', error);
@@ -62,8 +65,6 @@ const Home = () => {
       setRefreshing(false);
     }
   }, []);
-
-  const [posts, setPosts] = React.useState<any[] | undefined>([]);
 
   const handlePostEvent = async (payload: any) => {
     console.log(payload);
@@ -89,12 +90,15 @@ const Home = () => {
 
   const getPost = async () => {
     if (!hasMore) return null;
-    limit = limit + 4;
+    limit = limit + 6;
     let res = await fetchPost(limit);
+
     if (res.success) {
       if (posts?.length == res?.data?.length) setHasMore(false);
       setPosts(res.data);
     }
+    console.log('Res:', res.data?.length);
+    console.log('Posts:', posts?.length);
   };
 
   return (
@@ -140,7 +144,7 @@ const Home = () => {
           onEndReached={() => {
             getPost();
           }}
-          onEndReachedThreshold={0}
+          onEndReachedThreshold={0.5}
         />
 
         <Pressable

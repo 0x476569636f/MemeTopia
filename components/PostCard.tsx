@@ -34,6 +34,7 @@ const PostCard: React.FC<PostCardProps> = ({
   const videoRef = useRef<Video>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [showFullScreen, setShowFullScreen] = useState(false);
+  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
   const screenWidth = Dimensions.get('window').width;
   const screenHeight = Dimensions.get('window').height;
   const [isLiked, setIsLiked] = useState(false);
@@ -42,7 +43,7 @@ const PostCard: React.FC<PostCardProps> = ({
 
   useEffect(() => {
     const handleVideoPlayback = async () => {
-      if (!videoRef.current) return;
+      if (!videoRef.current || !isVideoLoaded) return;
 
       try {
         if (isVisible && isFocused) {
@@ -65,7 +66,7 @@ const PostCard: React.FC<PostCardProps> = ({
     };
 
     handleVideoPlayback();
-  }, [isVisible, isFocused]);
+  }, [isVisible, isFocused, isVideoLoaded]);
 
   useEffect(() => {
     return () => {
@@ -83,12 +84,10 @@ const PostCard: React.FC<PostCardProps> = ({
       Animated.spring(scaleAnim, {
         toValue: 1.2,
         useNativeDriver: true,
-        speed: 50,
       }),
       Animated.spring(scaleAnim, {
         toValue: 1,
         useNativeDriver: true,
-        speed: 50,
       }),
     ]).start();
   };
@@ -100,14 +99,15 @@ const PostCard: React.FC<PostCardProps> = ({
     animateHeart();
   };
 
-  const handlePlaybackStatusUpdate = async (status: AVPlaybackStatus) => {
+  const handlePlaybackStatusUpdate = (status: AVPlaybackStatus) => {
     if (!status.isLoaded) return;
+
+    setIsVideoLoaded(true);
 
     if (status.isPlaying) {
       if (currentPlayingVideo && currentPlayingVideo !== videoRef.current) {
-        await currentPlayingVideo.pauseAsync();
+        currentPlayingVideo.pauseAsync();
       }
-
       currentPlayingVideo = videoRef.current;
       setIsPlaying(true);
     } else {
@@ -118,18 +118,10 @@ const PostCard: React.FC<PostCardProps> = ({
     }
   };
 
-  useEffect(() => {
-    return () => {
-      if (currentPlayingVideo === videoRef.current) {
-        currentPlayingVideo = null;
-      }
-    };
-  }, []);
-
   return (
     <>
       <View
-        className={`mt-4 rounded-2xl border-b border-border bg-card p-4 ${hasShadow ? 'shadow-sm' : ''}`}>
+        className={` mt-4 rounded-2xl border-b border-border bg-card p-4 ${hasShadow ? 'shadow-sm' : ''}`}>
         <View className="mb-2 flex-row items-center">
           <Avatar size={hp(6)} uri={item?.user?.image} />
           <View className="ml-2 flex-1">
@@ -174,6 +166,7 @@ const PostCard: React.FC<PostCardProps> = ({
             style={{ width: '100%', height: 200 }}
             resizeMode={ResizeMode.CONTAIN}
             useNativeControls
+            onLoad={() => setIsVideoLoaded(true)}
             onPlaybackStatusUpdate={handlePlaybackStatusUpdate}
             shouldPlay={false}
             isLooping
@@ -214,8 +207,6 @@ const PostCard: React.FC<PostCardProps> = ({
           </TouchableOpacity>
         </View>
       </View>
-
-      {/* Full Screen Modal */}
       <Modal
         visible={showFullScreen}
         transparent={true}
