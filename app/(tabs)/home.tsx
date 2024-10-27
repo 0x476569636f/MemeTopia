@@ -33,6 +33,7 @@ const Home = () => {
   const [refreshing, setRefreshing] = React.useState(false);
 
   const [visibleItems, setVisibleItems] = useState<string[]>([]);
+  const [hasMore, setHasMore] = useState(true);
 
   const viewabilityConfig: ViewabilityConfig = {
     itemVisiblePercentThreshold: 100,
@@ -79,7 +80,7 @@ const Home = () => {
       .channel('posts')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, handlePostEvent)
       .subscribe();
-    getPost();
+    // getPost();
 
     return () => {
       postChannel.unsubscribe();
@@ -87,9 +88,11 @@ const Home = () => {
   }, []);
 
   const getPost = async () => {
-    limit = limit + 10;
+    if (!hasMore) return null;
+    limit = limit + 4;
     let res = await fetchPost(limit);
     if (res.success) {
+      if (posts?.length == res?.data?.length) setHasMore(false);
       setPosts(res.data);
     }
   };
@@ -114,9 +117,17 @@ const Home = () => {
           onViewableItemsChanged={onViewableItemsChanged}
           scrollEventThrottle={16}
           ListFooterComponent={
-            <View style={{ marginVertical: posts?.length == 0 ? 200 : 30 }}>
-              <Loading />
-            </View>
+            hasMore ? (
+              <View style={{ marginVertical: posts?.length == 0 ? 200 : 30 }}>
+                <Loading />
+              </View>
+            ) : (
+              <View style={{ marginVertical: 30 }}>
+                <Text variant="body" className="text-center">
+                  No more posts
+                </Text>
+              </View>
+            )
           }
           refreshControl={
             <RefreshControl
@@ -127,11 +138,9 @@ const Home = () => {
             />
           }
           onEndReached={() => {
-            if (!refreshing) {
-              getPost();
-            }
+            getPost();
           }}
-          onEndReachedThreshold={0.5}
+          onEndReachedThreshold={0}
         />
 
         <Pressable
