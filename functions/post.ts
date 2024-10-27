@@ -27,7 +27,7 @@ export const createOrUpdatePost = async (post: any) => {
   }
 };
 
-export const fetchPost = async (limit = 10) => {
+export const fetchPost = async (limit = 5) => {
   try {
     const { data, error } = await supabase
       .from('posts')
