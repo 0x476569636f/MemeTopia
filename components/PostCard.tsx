@@ -20,6 +20,7 @@ import { Video, ResizeMode, AVPlaybackStatus } from 'expo-av';
 import { useIsFocused } from '@react-navigation/native';
 import { createPostLike, removePostLike } from '~/functions/post';
 import * as Sharing from 'expo-sharing';
+import CommentModal from './CommentModal';
 
 let currentPlayingVideo: Video | null = null;
 
@@ -51,6 +52,7 @@ const PostCard: React.FC<PostCardProps> = ({
   const [likeCount, setLikeCount] = useState(0);
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const [isLoadingShare, setIsLoadingShare] = useState(false);
+  const [showCommentModal, setShowCommentModal] = useState(false);
 
   useEffect(() => {
     const handleVideoPlayback = async () => {
@@ -248,7 +250,9 @@ const PostCard: React.FC<PostCardProps> = ({
             </Animated.View>
             <Text className="text -muted-foreground ml-2 text-xs">{likeCount}</Text>
           </TouchableOpacity>
-          <TouchableOpacity className="flex-row items-center">
+          <TouchableOpacity
+            className="flex-row items-center"
+            onPress={() => setShowCommentModal(true)}>
             <Feather
               name="message-circle"
               size={16}
@@ -302,6 +306,12 @@ const PostCard: React.FC<PostCardProps> = ({
           />
         </View>
       </Modal>
+      <CommentModal
+        isVisible={showCommentModal}
+        onClose={() => setShowCommentModal(false)}
+        post={item}
+        currentUser={currentUser}
+      />
     </>
   );
 };
