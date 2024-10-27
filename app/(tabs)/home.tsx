@@ -49,7 +49,6 @@ const Home = () => {
 
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
-    limit = 0;
     setHasMore(true);
 
     try {
