@@ -8,6 +8,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
+  Modal,
+  Dimensions,
 } from 'react-native';
 import React, { useRef, useState } from 'react';
 import ScreenWrapper from '~/components/ScreenWrapperWithNavbar';
@@ -24,9 +26,10 @@ import * as ImagePicker from 'expo-image-picker';
 import { getSupabaseFileUrl } from '~/functions/storage';
 import { Button } from '~/components/nativewindui/Button';
 import AntDesign from '@expo/vector-icons/AntDesign';
-import { Video } from 'expo-av';
+import { ResizeMode, Video } from 'expo-av';
 import { createOrUpdatePost } from '~/functions/post';
 import Loading from '~/components/Loading';
+import { Feather } from '@expo/vector-icons';
 
 const NewPost = () => {
   const router = useRouter();
@@ -37,6 +40,9 @@ const NewPost = () => {
   const [file, setFile] = useState<any>(null);
   const [postContent, setPostContent] = useState('');
   const { isDarkColorScheme } = useColorScheme();
+  const [showFullScreen, setShowFullScreen] = useState(false);
+  const screenWidth = Dimensions.get('window').width;
+  const screenHeight = Dimensions.get('window').height;
 
   const onPick = async () => {
     let res = await ImagePicker.launchImageLibraryAsync({
@@ -45,7 +51,6 @@ const NewPost = () => {
       quality: 1,
     });
 
-    console.log(res);
     if (!res.canceled) {
       setFile(res.assets[0]);
     }
@@ -63,7 +68,6 @@ const NewPost = () => {
       return file.type;
     }
 
-    // chechk image or video for remote file
     if (file.includes('postImage')) {
       return 'image';
     }
@@ -103,80 +107,120 @@ const NewPost = () => {
     } else {
       Alert.alert('Error', 'Gagal membuat post');
     }
-    console.log(res);
   };
 
-  console.log(getFileUri(file), isLocalFile(file));
-
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <ScreenWrapper routeName="Post your meme">
-        <ScrollView contentContainerStyle={{ paddingHorizontal: 16 }}>
-          <BackButton onPress={() => router.back()} />
-          <View className="mt-4 flex flex-row">
-            <Avatar uri={user.image} size={hp(7)} />
-            <View className="ml-2">
-              <Text variant={'heading'}>{user.name}</Text>
-              <Text variant={'footnote'} className="text-muted-foreground">
-                public
-              </Text>
+    <>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <ScreenWrapper routeName="Post your meme">
+          <ScrollView contentContainerStyle={{ paddingHorizontal: 16 }}>
+            <BackButton onPress={() => router.back()} />
+            <View className="mt-4 flex flex-row">
+              <Avatar uri={user.image} size={hp(7)} />
+              <View className="ml-2">
+                <Text variant={'heading'}>{user.name}</Text>
+                <Text variant={'footnote'} className="text-muted-foreground">
+                  public
+                </Text>
+              </View>
             </View>
-          </View>
-          <TextEditor
-            ref={editorRef}
-            value={postContent}
-            onChangeText={setPostContent}
-            placeholder="What meme made you laugh today?"
-            style={{ marginTop: 16, minHeight: 100 }}
-          />
+            <TextEditor
+              ref={editorRef}
+              value={postContent}
+              onChangeText={setPostContent}
+              placeholder="What meme made you laugh today?"
+              style={{ marginTop: 16, minHeight: 100 }}
+            />
 
-          {
-            // Display the image if it exists
-            file && (
+            {file && (
               <View style={styles.file}>
                 {getFileType(file) === 'video' ? (
                   <Video
                     style={{ flex: 1 }}
                     source={{ uri: getFileUri(file) }}
                     useNativeControls
-                    resizeMode="cover"
+                    resizeMode={ResizeMode.CONTAIN}
                     isLooping></Video>
                 ) : (
-                  <Image
-                    source={{ uri: getFileUri(file) }}
-                    resizeMode="cover"
-                    style={{ flex: 1 }}
-                  />
+                  <TouchableOpacity onPress={() => setShowFullScreen(true)}>
+                    <Image
+                      source={{ uri: getFileUri(file) }}
+                      style={{ width: '100%', height: 200 }}
+                      contentFit="cover"
+                    />
+                    <View
+                      style={{
+                        position: 'absolute',
+                        right: 10,
+                        bottom: 10,
+                        backgroundColor: 'rgba(0,0,0,0.5)',
+                        borderRadius: 20,
+                        padding: 5,
+                      }}>
+                      <Feather name="maximize" size={24} color="white" />
+                    </View>
+                  </TouchableOpacity>
                 )}
                 <Pressable style={styles.closeIcon} onPress={() => setFile(null)}>
                   <AntDesign name="delete" size={24} color="white" />
                 </Pressable>
               </View>
-            )
-          }
+            )}
 
-          <View style={styles.media}>
-            <Text>Add meme</Text>
-            <View style={styles.mediaIcons}>
-              <TouchableOpacity onPress={onPick}>
-                <FontAwesome5
-                  name="images"
-                  size={24}
-                  color={isDarkColorScheme ? 'white' : 'black'}
-                />
-              </TouchableOpacity>
+            <View style={styles.media}>
+              <Text>Add meme</Text>
+              <View style={styles.mediaIcons}>
+                <TouchableOpacity onPress={onPick}>
+                  <FontAwesome5
+                    name="images"
+                    size={24}
+                    color={isDarkColorScheme ? 'white' : 'black'}
+                  />
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
-          <View style={{ marginTop: 16 }}>
-            <Button onPress={onSubmit} disabled={loading}>
-              {loading ? <Loading /> : <Text>Post</Text>}
-            </Button>
-          </View>
-        </ScrollView>
-      </ScreenWrapper>
-    </KeyboardAvoidingView>
+            <View style={{ marginTop: 16 }}>
+              <Button onPress={onSubmit} disabled={loading}>
+                {loading ? <Loading /> : <Text>Post</Text>}
+              </Button>
+            </View>
+          </ScrollView>
+        </ScreenWrapper>
+      </KeyboardAvoidingView>
+      {/* Full Screen Modal */}
+      <Modal
+        visible={showFullScreen}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowFullScreen(false)}>
+        <View style={{ flex: 1, backgroundColor: 'black' }}>
+          <TouchableOpacity
+            style={{
+              position: 'absolute',
+              top: 40,
+              right: 20,
+              zIndex: 1,
+              padding: 10,
+              borderRadius: 20,
+              backgroundColor: 'rgba(0,0,0,0.5)',
+            }}
+            onPress={() => setShowFullScreen(false)}>
+            <Feather name="x" size={30} color="white" />
+          </TouchableOpacity>
+          <Image
+            source={{ uri: getFileUri(file) }}
+            style={{
+              width: screenWidth,
+              height: screenHeight,
+              flex: 1,
+              resizeMode: 'contain',
+            }}
+          />
+        </View>
+      </Modal>
+    </>
   );
 };
 
