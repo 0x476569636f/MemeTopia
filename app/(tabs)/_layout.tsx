@@ -11,14 +11,14 @@ const _layout = () => {
       <Tabs.Screen
         name="home"
         options={{
-          title: 'Home',
+          title: 'Beranda',
           tabBarIcon: ({ color, size }) => <AntDesign name="home" size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="notifications"
         options={{
-          title: 'Notifications',
+          title: 'Notifikasi',
           tabBarIcon: ({ color, size }) => (
             <AntDesign name="notification" size={size} color={color} />
           ),
@@ -27,14 +27,14 @@ const _layout = () => {
       <Tabs.Screen
         name="messages"
         options={{
-          title: 'Messages',
+          title: 'Pesan',
           tabBarIcon: ({ color, size }) => <AntDesign name="mail" size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'My Profile',
+          title: 'Profil Saya',
           tabBarIcon: ({ color, size }) => <AntDesign name="user" size={size} color={color} />,
         }}
       />

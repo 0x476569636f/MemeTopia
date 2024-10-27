@@ -95,7 +95,7 @@ const Home = () => {
   };
 
   return (
-    <ScreenWrapper routeName="Home">
+    <ScreenWrapper routeName="Beranda">
       <View style={{ flex: 1 }}>
         <FlatList
           data={posts}

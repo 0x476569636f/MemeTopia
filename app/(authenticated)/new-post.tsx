@@ -114,7 +114,7 @@ const NewPost = () => {
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-        <ScreenWrapper routeName="Post your meme">
+        <ScreenWrapper routeName="Unggah Meme">
           <ScrollView contentContainerStyle={{ paddingHorizontal: 16 }}>
             <BackButton onPress={() => router.back()} />
             <View className="mt-4 flex flex-row">
@@ -122,7 +122,7 @@ const NewPost = () => {
               <View className="ml-2">
                 <Text variant={'heading'}>{user.name}</Text>
                 <Text variant={'footnote'} className="text-muted-foreground">
-                  public
+                  Publik
                 </Text>
               </View>
             </View>
@@ -130,7 +130,7 @@ const NewPost = () => {
               ref={editorRef}
               value={postContent}
               onChangeText={setPostContent}
-              placeholder="What meme made you laugh today?"
+              placeholder="Meme apa yang bikin kamu tertawa hari ini?"
               style={{ marginTop: 16, minHeight: 100 }}
             />
 
@@ -170,7 +170,7 @@ const NewPost = () => {
             )}
 
             <View style={styles.media}>
-              <Text>Add meme</Text>
+              <Text variant={'caption1'}>Lampirkan meme yang ingin kamu bagikan.</Text>
               <View style={styles.mediaIcons}>
                 <TouchableOpacity onPress={onPick}>
                   <FontAwesome5
@@ -183,7 +183,7 @@ const NewPost = () => {
             </View>
             <View style={{ marginTop: 16 }}>
               <Button onPress={onSubmit} disabled={loading}>
-                {loading ? <Loading /> : <Text>Post</Text>}
+                {loading ? <Loading /> : <Text>Posting</Text>}
               </Button>
             </View>
           </ScrollView>

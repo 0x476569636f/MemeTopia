@@ -99,7 +99,7 @@ const EditProfile = () => {
     <KeyboardAvoidingView
       style={{ flex: 1 }}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <ScreenWrapper routeName="Update Profile">
+      <ScreenWrapper routeName={`Profil ${currentUser.name}`}>
         <ScrollView contentContainerStyle={{ padding: 16 }}>
           <View className="flex flex-col">
             <View className="p-3">
@@ -188,7 +188,7 @@ const EditProfile = () => {
               )}
               <View className="mt-4">
                 <Button onPress={handleSubmit(onPressSend)} disabled={loading}>
-                  {loading ? <Loading /> : <Text>Update Profile</Text>}
+                  {loading ? <Loading /> : <Text>Simpan Perubahan</Text>}
                 </Button>
               </View>
             </View>

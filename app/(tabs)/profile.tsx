@@ -17,13 +17,13 @@ const Profile = () => {
   const screenWidth = Dimensions.get('window').width;
   const screenHeight = Dimensions.get('window').height;
   const handleLogout = async () => {
-    Alert.alert('Logout', 'Are you sure you want to logout?', [
+    Alert.alert('Logout', 'Apakah kamu yakin ingin keluar?', [
       {
-        text: 'Cancel',
+        text: 'Batal',
         style: 'cancel',
       },
       {
-        text: 'Logout',
+        text: 'Keluar',
         onPress: async () => {
           setAuth(null);
           const { error } = await supabase.auth.signOut();
@@ -38,7 +38,7 @@ const Profile = () => {
   };
 
   return (
-    <ScreenWrapper routeName="Profile">
+    <ScreenWrapper routeName="Profil Saya">
       <ScrollView contentContainerStyle={{ padding: 16 }}>
         <View className="rounded-3xl bg-card">
           <View className="flex items-center justify-center">
@@ -70,7 +70,7 @@ const Profile = () => {
               onPress={() => {
                 router.push('/edit-profile');
               }}>
-              <Text>Ubah Profil</Text>
+              <Text>Perbarui Profil</Text>
             </Button>
             <Button variant="plain" onPress={handleLogout}>
               <Text>Keluar</Text>
