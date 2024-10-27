@@ -216,21 +216,33 @@ const PostCard: React.FC<PostCardProps> = ({
       </View>
 
       {/* Full Screen Modal */}
-      <Modal visible={showFullScreen} transparent={true} animationType="fade">
+      <Modal
+        visible={showFullScreen}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowFullScreen(false)}>
         <View style={{ flex: 1, backgroundColor: 'black' }}>
           <TouchableOpacity
-            style={{ position: 'absolute', top: 40, right: 20, zIndex: 1 }}
+            style={{
+              position: 'absolute',
+              top: 40,
+              right: 20,
+              zIndex: 1,
+              padding: 10,
+              borderRadius: 20,
+              backgroundColor: 'rgba(0,0,0,0.5)',
+            }}
             onPress={() => setShowFullScreen(false)}>
             <Feather name="x" size={30} color="white" />
           </TouchableOpacity>
           <Image
-            source={getSupabaseFileUrl(item?.file)?.uri}
+            source={{ uri: getSupabaseFileUrl(item?.file)?.uri }}
             style={{
               width: screenWidth,
               height: screenHeight,
               flex: 1,
+              resizeMode: 'contain',
             }}
-            contentFit="contain"
           />
         </View>
       </Modal>
