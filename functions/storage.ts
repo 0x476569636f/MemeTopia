@@ -36,3 +36,17 @@ export const getSupabaseFileUrl = (filePath: string) => {
   }
   return null;
 };
+
+export const downloadFile = async (url: string) => {
+  try {
+    const { uri } = await FileSystem.downloadAsync(url, getLocalPath(url));
+    return uri;
+  } catch (error) {
+    return { success: false, msg: 'Error when downloading file' };
+  }
+};
+
+export const getLocalPath = (url: string) => {
+  const filename = url.split('/').pop();
+  return `${FileSystem.documentDirectory}${filename}`;
+};

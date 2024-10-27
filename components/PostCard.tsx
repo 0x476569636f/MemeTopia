@@ -1,5 +1,13 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { View, TouchableOpacity, Modal, Dimensions, Animated } from 'react-native';
+import {
+  View,
+  TouchableOpacity,
+  Modal,
+  Dimensions,
+  Animated,
+  Share,
+  ActivityIndicator,
+} from 'react-native';
 import { Feather, FontAwesome } from '@expo/vector-icons';
 import { useColorScheme } from '~/lib/useColorScheme';
 import Avatar from './Avatar';
@@ -7,10 +15,11 @@ import { hp } from '~/lib/common';
 import { formatDate } from '~/functions/Date';
 import { Text } from './nativewindui/Text';
 import { Image } from 'expo-image';
-import { getSupabaseFileUrl } from '~/functions/storage';
+import { downloadFile, getSupabaseFileUrl } from '~/functions/storage';
 import { Video, ResizeMode, AVPlaybackStatus } from 'expo-av';
 import { useIsFocused } from '@react-navigation/native';
 import { createPostLike, removePostLike } from '~/functions/post';
+import * as Sharing from 'expo-sharing';
 
 let currentPlayingVideo: Video | null = null;
 
@@ -39,8 +48,9 @@ const PostCard: React.FC<PostCardProps> = ({
   const screenWidth = Dimensions.get('window').width;
   const screenHeight = Dimensions.get('window').height;
   const [isLiked, setIsLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(0); // Initialize as a number
+  const [likeCount, setLikeCount] = useState(0);
   const scaleAnim = useRef(new Animated.Value(1)).current;
+  const [isLoadingShare, setIsLoadingShare] = useState(false);
 
   useEffect(() => {
     const handleVideoPlayback = async () => {
@@ -119,6 +129,32 @@ const PostCard: React.FC<PostCardProps> = ({
     if (!res.success) {
       console.error('Error:', res.msg);
     }
+  };
+
+  const handleShare = async () => {
+    setIsLoadingShare(true);
+    let content: { message: string; url?: string } = { message: item?.body };
+
+    if (item?.file) {
+      const fileUri = getSupabaseFileUrl(item?.file)?.uri as string;
+      const localUri = await downloadFile(fileUri);
+
+      if (typeof localUri === 'string') {
+        console.log('Downloaded file:', localUri);
+        content = { message: item?.body, url: localUri };
+      }
+    }
+
+    if (await Sharing.isAvailableAsync()) {
+      await Sharing.shareAsync(content.url || '', {
+        dialogTitle: 'Share Post',
+        UTI: 'public.image | public.movie',
+        mimeType: 'image/png | image/jpeg | image/jpg | image/gif | video/mp4',
+      });
+    } else {
+      alert('Sharing is not available on this device.');
+    }
+    setIsLoadingShare(false);
   };
 
   const handlePlaybackStatusUpdate = (status: AVPlaybackStatus) => {
@@ -210,7 +246,7 @@ const PostCard: React.FC<PostCardProps> = ({
                 />
               )}
             </Animated.View>
-            <Text className="ml-2 text-xs text-muted-foreground">{likeCount}</Text>
+            <Text className="text -muted-foreground ml-2 text-xs">{likeCount}</Text>
           </TouchableOpacity>
           <TouchableOpacity className="flex-row items-center">
             <Feather
@@ -220,12 +256,19 @@ const PostCard: React.FC<PostCardProps> = ({
             />
             <Text className="ml-1 text-xs text-muted-foreground">{item.commentCount}</Text>
           </TouchableOpacity>
-          <TouchableOpacity className="flex-row items-center">
-            <Feather
-              name="share"
-              size={16}
-              color={isDarkColorScheme ? 'rgb(0, 123, 254)' : 'black'}
-            />
+          <TouchableOpacity className="flex-row items-center" onPress={handleShare}>
+            {isLoadingShare ? (
+              <ActivityIndicator
+                size="small"
+                color={isDarkColorScheme ? 'rgb(0, 123, 254)' : 'black'}
+              />
+            ) : (
+              <Feather
+                name="share"
+                size={16}
+                color={isDarkColorScheme ? 'rgb(0, 123, 254)' : 'black'}
+              />
+            )}
           </TouchableOpacity>
         </View>
       </View>
