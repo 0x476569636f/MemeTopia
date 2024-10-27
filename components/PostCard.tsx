@@ -10,8 +10,9 @@ import { Image } from 'expo-image';
 import { getSupabaseFileUrl } from '~/functions/storage';
 import { Video, ResizeMode, AVPlaybackStatus } from 'expo-av';
 import { useIsFocused } from '@react-navigation/native';
+import { createPostLike, removePostLike } from '~/functions/post';
 
-let currentPlayingVideo: any = null;
+let currentPlayingVideo: Video | null = null;
 
 interface PostCardProps {
   item: any;
@@ -38,7 +39,7 @@ const PostCard: React.FC<PostCardProps> = ({
   const screenWidth = Dimensions.get('window').width;
   const screenHeight = Dimensions.get('window').height;
   const [isLiked, setIsLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(0);
+  const [likeCount, setLikeCount] = useState(0); // Initialize as a number
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
@@ -79,6 +80,11 @@ const PostCard: React.FC<PostCardProps> = ({
     };
   }, []);
 
+  useEffect(() => {
+    setLikeCount(item?.postLikes?.length || 0);
+    setIsLiked(item?.postLikes?.some((like: any) => like.userId === currentUser?.id));
+  }, [item, currentUser]);
+
   const animateHeart = () => {
     Animated.sequence([
       Animated.spring(scaleAnim, {
@@ -92,11 +98,30 @@ const PostCard: React.FC<PostCardProps> = ({
     ]).start();
   };
 
-  const handleLike = () => {
+  const handleLike = async () => {
     const newLikeStatus = !isLiked;
     setIsLiked(newLikeStatus);
-    setLikeCount((prev: number) => prev + (newLikeStatus ? 1 : -1));
+    setLikeCount((prev) => prev + (newLikeStatus ? 1 : -1));
     animateHeart();
+    if (isLiked) {
+      console.log('Remove Like:', item?.id);
+      const res = await removePostLike(item?.id, currentUser?.id);
+      console.log('Remove Like:', res);
+      if (!res.success) {
+        console.error('Error:', res.msg);
+      }
+      return;
+    }
+    const data = {
+      userId: currentUser?.id,
+      postId: item?.id,
+    };
+
+    const res = await createPostLike(data);
+    console.log('Like:', res);
+    if (!res.success) {
+      console.error('Error:', res.msg);
+    }
   };
 
   const handlePlaybackStatusUpdate = (status: AVPlaybackStatus) => {

@@ -34,7 +34,9 @@ export const fetchPost = async (limit = 5) => {
       .select(
         `
         *, 
-        user: users (id, name, image)`
+        user: users (id, name, image),
+        postLikes (*)
+        `
       )
       .order('created_at', { ascending: false })
       .limit(limit);
@@ -47,5 +49,39 @@ export const fetchPost = async (limit = 5) => {
   } catch (error) {
     console.error(error);
     return { success: false, msg: 'Error when fetching post' };
+  }
+};
+
+export const createPostLike = async (postLike: any) => {
+  try {
+    const { data, error } = await supabase.from('postLikes').insert(postLike).select().single();
+
+    if (error) {
+      console.error(error);
+      return { success: false, msg: 'Error when Like Post' };
+    }
+    return { success: true, data: data };
+  } catch (error) {
+    console.error(error);
+    return { success: false, msg: 'Error when Like Post' };
+  }
+};
+
+export const removePostLike = async (postId: any, userId: any) => {
+  try {
+    const { error } = await supabase
+      .from('postLikes')
+      .delete()
+      .eq('postId', postId)
+      .eq('userId', userId);
+
+    if (error) {
+      console.error(error);
+      return { success: false, msg: 'Error when Like Post' };
+    }
+    return { success: true, msg: 'Post unliked' };
+  } catch (error) {
+    console.error(error);
+    return { success: false, msg: 'Error when unlike Post' };
   }
 };
