@@ -14,15 +14,15 @@ type AvatarProps = {
 
 const Avatar: React.FC<AvatarProps> = ({ uri, size = hp(4.5), style, className, source }) => {
   const { isDarkColorScheme } = useColorScheme();
+
   return (
     <Image
       source={source ? source : getUserImageSrc(uri)}
-      transition={100}
       style={{
         width: size,
         height: size,
         borderColor: isDarkColorScheme ? '#FFFFFF' : '#000000',
-        borderRadius: 25,
+        borderRadius: size / 2,
         ...style,
       }}
       className={className}
