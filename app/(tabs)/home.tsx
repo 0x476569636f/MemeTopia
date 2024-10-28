@@ -81,7 +81,7 @@ const Home = () => {
     // getPost();
 
     return () => {
-      postChannel.unsubscribe();
+      supabase.removeChannel(postChannel);
     };
   }, []);
 
@@ -123,7 +123,7 @@ const Home = () => {
             ) : (
               <View style={{ marginVertical: 30 }}>
                 <Text variant="body" className="text-center">
-                  No more posts
+                  Tidak ada lagi post
                 </Text>
               </View>
             )
