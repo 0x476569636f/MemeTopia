@@ -27,7 +27,7 @@ let currentPlayingVideo: Video | null = null;
 interface PostCardProps {
   item: any;
   currentUser: any;
-  router: any;
+  router?: any;
   hasShadow?: boolean;
   isVisible?: boolean;
 }
@@ -50,6 +50,7 @@ const PostCard: React.FC<PostCardProps> = ({
   const screenHeight = Dimensions.get('window').height;
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
+  const [commentCount, setCommentCount] = useState(0);
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const [isLoadingShare, setIsLoadingShare] = useState(false);
   const [showCommentModal, setShowCommentModal] = useState(false);
@@ -94,6 +95,14 @@ const PostCard: React.FC<PostCardProps> = ({
 
   useEffect(() => {
     setLikeCount(item?.postLikes?.length || 0);
+    setCommentCount(
+      Array.isArray(item.comments)
+        ? item.comments.reduce(
+            (total: number, comment: { count: number }) => total + comment.count,
+            0
+          )
+        : 0
+    );
     setIsLiked(item?.postLikes?.some((like: any) => like.userId === currentUser?.id));
   }, [item, currentUser]);
 
@@ -220,17 +229,20 @@ const PostCard: React.FC<PostCardProps> = ({
           </TouchableOpacity>
         )}
         {item?.file && item.file.includes('postVideo') && (
-          <Video
-            ref={videoRef}
-            source={getSupabaseFileUrl(item?.file) || undefined}
-            style={{ width: '100%', height: 200 }}
-            resizeMode={ResizeMode.CONTAIN}
-            useNativeControls
-            onLoad={() => setIsVideoLoaded(true)}
-            onPlaybackStatusUpdate={handlePlaybackStatusUpdate}
-            shouldPlay={false}
-            isLooping
-          />
+          <View className="relative">
+            {!isVideoLoaded && <VideoLoadingOverlay isDarkColorScheme={isDarkColorScheme} />}
+            <Video
+              ref={videoRef}
+              source={getSupabaseFileUrl(item?.file) || undefined}
+              style={{ width: '100%', height: 200 }}
+              resizeMode={ResizeMode.CONTAIN}
+              useNativeControls
+              onLoad={() => setIsVideoLoaded(true)}
+              onPlaybackStatusUpdate={handlePlaybackStatusUpdate}
+              shouldPlay={false}
+              isLooping
+            />
+          </View>
         )}
         <View className="mx-4 mt-4 flex-row justify-between ">
           <TouchableOpacity
@@ -248,7 +260,7 @@ const PostCard: React.FC<PostCardProps> = ({
                 />
               )}
             </Animated.View>
-            <Text className="text -muted-foreground ml-2 text-xs">{likeCount}</Text>
+            <Text className="ml-2 text-xs">{likeCount}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             className="flex-row items-center"
@@ -258,7 +270,7 @@ const PostCard: React.FC<PostCardProps> = ({
               size={16}
               color={isDarkColorScheme ? 'rgb(0, 123, 254)' : 'black'}
             />
-            <Text className="ml-1 text-xs text-muted-foreground">{item.commentCount}</Text>
+            <Text className="ml-1 text-xs">{commentCount}</Text>
           </TouchableOpacity>
           <TouchableOpacity className="flex-row items-center" onPress={handleShare}>
             {isLoadingShare ? (
@@ -316,4 +328,12 @@ const PostCard: React.FC<PostCardProps> = ({
   );
 };
 
+const VideoLoadingOverlay = ({ isDarkColorScheme }: { isDarkColorScheme: boolean }) => (
+  <View
+    className="bg-card/80 absolute left-0 right-0 top-0 z-10 items-center justify-center"
+    style={{ height: 200 }}>
+    <ActivityIndicator size="large" color={isDarkColorScheme ? 'rgb(0, 123, 254)' : 'black'} />
+    <Text className="mt-2 text-sm text-muted-foreground">Loading video...</Text>
+  </View>
+);
 export default PostCard;
