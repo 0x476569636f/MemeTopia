@@ -35,9 +35,60 @@ export const fetchPost = async (limit = 5) => {
         `
         *, 
         user: users (id, name, image),
-        postLikes (*)
+        postLikes (*),
+        comments (count)
         `
       )
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.error(error);
+      return { success: false, msg: 'Error when fetching post' };
+    }
+    return { success: true, data: data };
+  } catch (error) {
+    console.error(error);
+    return { success: false, msg: 'Error when fetching post' };
+  }
+};
+
+export const fetchPostComments = async (postId: number) => {
+  try {
+    const { data, error } = await supabase
+      .from('posts')
+      .select(
+        `
+        comments (*, user: users(id, name, image))
+        `
+      )
+      .eq('id', postId)
+      .order('created_at', { ascending: false, foreignTable: 'comments' });
+
+    if (error) {
+      console.error(error);
+      return { success: false, msg: 'Error when fetching post' };
+    }
+    return { success: true, data: data };
+  } catch (error) {
+    console.error(error);
+    return { success: false, msg: 'Error when fetching post' };
+  }
+};
+
+export const fetchPostById = async (limit = 5, userId: number) => {
+  try {
+    const { data, error } = await supabase
+      .from('posts')
+      .select(
+        `
+        *, 
+        user: users (id, name, image),
+        postLikes (*),
+        comments (count)
+        `
+      )
+      .eq('userId', userId)
       .order('created_at', { ascending: false })
       .limit(limit);
 
@@ -83,5 +134,35 @@ export const removePostLike = async (postId: any, userId: any) => {
   } catch (error) {
     console.error(error);
     return { success: false, msg: 'Error when unlike Post' };
+  }
+};
+
+export const createComment = async (comment: any) => {
+  try {
+    const { error } = await supabase.from('comments').insert(comment).select().single();
+
+    if (error) {
+      console.error(error);
+      return { success: false, msg: 'Error when comment' };
+    }
+    return { success: true, msg: 'Comment send' };
+  } catch (error) {
+    console.error(error);
+    return { success: false, msg: 'Error when comment ' };
+  }
+};
+
+export const deleteComment = async (commentId: number) => {
+  try {
+    const { error } = await supabase.from('comments').delete().eq('id', commentId);
+
+    if (error) {
+      console.error(error);
+      return { success: false, msg: 'Error when delete comment' };
+    }
+    return { success: true, data: commentId };
+  } catch (error) {
+    console.error(error);
+    return { success: false, msg: 'Error when delete comment' };
   }
 };
