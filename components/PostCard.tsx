@@ -10,11 +10,12 @@ import { Image } from 'expo-image';
 import { downloadFile, getSupabaseFileUrl } from '~/functions/storage';
 import { Video, ResizeMode, AVPlaybackStatus } from 'expo-av';
 import { useIsFocused } from '@react-navigation/native';
-import { createPostLike, removePostLike } from '~/functions/post';
+import { createPostLike, removePost, removePostLike } from '~/functions/post';
 import * as Sharing from 'expo-sharing';
 import CommentModal from './CommentModal';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import ImageViewer from 'react-native-image-zoom-viewer';
+import { Alert } from 'react-native';
 
 let currentPlayingVideo: Video | null = null;
 
@@ -24,6 +25,7 @@ interface PostCardProps {
   router?: any;
   hasShadow?: boolean;
   isVisible?: boolean;
+  onPostDeleted?: (postId: number) => void;
 }
 
 const PostCard: React.FC<PostCardProps> = ({
@@ -32,6 +34,7 @@ const PostCard: React.FC<PostCardProps> = ({
   router,
   hasShadow = true,
   isVisible,
+  onPostDeleted,
 }) => {
   const isFocused = useIsFocused();
   const { isDarkColorScheme, colorScheme, colors } = useColorScheme();
@@ -206,14 +209,37 @@ const PostCard: React.FC<PostCardProps> = ({
         switch (selectedIndex) {
           case 0:
             if (options[0] === 'Edit') {
+              console.log(options[0]);
               console.log('Edit clicked');
+              break;
             } else {
-              console.log('Delete clicked');
+              Alert.alert('Hapus', 'Apakah kamu yakin ingin menghapus postingan ini?', [
+                {
+                  text: 'Batal',
+                  style: 'cancel',
+                },
+                {
+                  text: 'Hapus',
+                  onPress: () => onDeletePost(item?.id),
+                  style: 'destructive',
+                },
+              ]);
+              break;
             }
 
           case destructiveButtonIndex:
             // Delete
-            console.log('Delete clicked');
+            Alert.alert('Hapus', 'Apakah kamu yakin ingin  menghapus postingan ini?', [
+              {
+                text: 'Batal',
+                style: 'cancel',
+              },
+              {
+                text: 'Hapus',
+                onPress: () => onDeletePost(item?.id),
+                style: 'destructive',
+              },
+            ]);
             break;
 
           case cancelButtonIndex:
@@ -222,6 +248,16 @@ const PostCard: React.FC<PostCardProps> = ({
         }
       }
     );
+  };
+
+  const onDeletePost = async (postId: number) => {
+    console.log(postId);
+    let res = await removePost(postId);
+    if (res.success) {
+      onPostDeleted?.(postId);
+    } else {
+      Alert.alert('Post', res.msg);
+    }
   };
 
   return (

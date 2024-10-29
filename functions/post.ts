@@ -53,6 +53,21 @@ export const fetchPost = async (limit = 5) => {
   }
 };
 
+export const removePost = async (postId: number) => {
+  try {
+    const { error } = await supabase.from('posts').delete().eq('id', postId);
+
+    if (error) {
+      console.error(error);
+      return { success: false, msg: 'Error when delete post' };
+    }
+    return { success: true, msg: 'Post deleted' };
+  } catch (error) {
+    console.error(error);
+    return { success: false, msg: 'Error when delete post' };
+  }
+};
+
 export const fetchPostComments = async (postId: number) => {
   try {
     const { data, error } = await supabase

@@ -96,6 +96,10 @@ const Home = () => {
     }
   };
 
+  const handlePostDeleted = (deletedPostId: number) => {
+    setPosts(posts?.filter((post) => post.id !== deletedPostId));
+  };
+
   return (
     <ScreenWrapper routeName="Beranda">
       <View style={{ flex: 1 }}>
@@ -110,6 +114,7 @@ const Home = () => {
               isVisible={visibleItems.includes(item.id.toString())}
               currentUser={user}
               router={router}
+              onPostDeleted={handlePostDeleted}
             />
           )}
           viewabilityConfig={viewabilityConfig}
