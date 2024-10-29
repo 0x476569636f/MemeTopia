@@ -25,7 +25,6 @@ interface PostCardProps {
   router?: any;
   hasShadow?: boolean;
   isVisible?: boolean;
-  onPostDeleted?: (postId: number) => void;
 }
 
 const PostCard: React.FC<PostCardProps> = ({
@@ -34,7 +33,6 @@ const PostCard: React.FC<PostCardProps> = ({
   router,
   hasShadow = true,
   isVisible,
-  onPostDeleted,
 }) => {
   const isFocused = useIsFocused();
   const { isDarkColorScheme, colorScheme, colors } = useColorScheme();
@@ -209,8 +207,7 @@ const PostCard: React.FC<PostCardProps> = ({
         switch (selectedIndex) {
           case 0:
             if (options[0] === 'Edit') {
-              console.log(options[0]);
-              console.log('Edit clicked');
+              router.push({ pathname: 'new-post', params: { ...item } });
               break;
             } else {
               Alert.alert('Hapus', 'Apakah kamu yakin ingin menghapus postingan ini?', [
@@ -251,11 +248,8 @@ const PostCard: React.FC<PostCardProps> = ({
   };
 
   const onDeletePost = async (postId: number) => {
-    console.log(postId);
     let res = await removePost(postId);
-    if (res.success) {
-      onPostDeleted?.(postId);
-    } else {
+    if (!res.success) {
       Alert.alert('Post', res.msg);
     }
   };

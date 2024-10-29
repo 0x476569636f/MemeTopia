@@ -71,6 +71,9 @@ const Home = () => {
       newPost.user = res.success ? res.data : {};
       setPosts((prevPost = []) => [newPost, ...prevPost]);
     }
+    if (payload.eventType == 'DELETE' && payload.old.id) {
+      setPosts((prevPost) => prevPost?.filter((post) => post.id != payload.old.id));
+    }
   };
 
   useEffect(() => {
@@ -96,10 +99,6 @@ const Home = () => {
     }
   };
 
-  const handlePostDeleted = (deletedPostId: number) => {
-    setPosts(posts?.filter((post) => post.id !== deletedPostId));
-  };
-
   return (
     <ScreenWrapper routeName="Beranda">
       <View style={{ flex: 1 }}>
@@ -114,7 +113,6 @@ const Home = () => {
               isVisible={visibleItems.includes(item.id.toString())}
               currentUser={user}
               router={router}
-              onPostDeleted={handlePostDeleted}
             />
           )}
           viewabilityConfig={viewabilityConfig}
