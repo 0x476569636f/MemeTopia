@@ -182,7 +182,7 @@ const PostCard: React.FC<PostCardProps> = ({
   };
 
   const handleOptions = () => {
-    let options = ['Edit', 'Delete', 'Cancel'];
+    let options = ['Edit', 'Hapus', 'Batal'];
     let destructiveButtonIndex = 1;
     let cancelButtonIndex = 2;
 
