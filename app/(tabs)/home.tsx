@@ -11,10 +11,8 @@ import {
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '~/context/auth';
 import { supabase } from '~/lib/supabase';
-import { Button } from '~/components/nativewindui/Button';
 import ScreenWrapper from '~/components/ScreenWrapperWithNavbar';
 import { Text } from '~/components/nativewindui/Text';
-import { ScrollView } from 'react-native-gesture-handler';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { useRouter } from 'expo-router';
@@ -27,7 +25,7 @@ import { getUserData } from '~/functions/user';
 let limit = 0;
 
 const Home = () => {
-  const { user, setAuth }: any = useAuth();
+  const { user }: any = useAuth();
   const { isDarkColorScheme } = useColorScheme();
   const router = useRouter();
   const [refreshing, setRefreshing] = React.useState(false);

@@ -33,8 +33,6 @@ let limit = 0;
 const Profile = () => {
   const { user, setAuth }: any = useAuth();
   const [showFullScreen, setShowFullScreen] = useState(false);
-  const screenWidth = Dimensions.get('window').width;
-  const screenHeight = Dimensions.get('window').height;
   const [posts, setPosts] = useState<any[] | undefined>([]);
   const [hasMore, setHasMore] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
