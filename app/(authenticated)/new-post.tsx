@@ -9,13 +9,12 @@ import {
   Platform,
   Alert,
   Modal,
-  Dimensions,
 } from 'react-native';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import ScreenWrapper from '~/components/ScreenWrapperWithNavbar';
 import { Text } from '~/components/nativewindui/Text';
 import { BackButton } from '~/components/BackButton';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import Avatar from '~/components/Avatar';
 import { useAuth } from '~/context/auth';
 import { hp } from '~/lib/common';
@@ -42,8 +41,14 @@ const NewPost = () => {
   const [postContent, setPostContent] = useState('');
   const { isDarkColorScheme } = useColorScheme();
   const [showFullScreen, setShowFullScreen] = useState(false);
-  const screenWidth = Dimensions.get('window').width;
-  const screenHeight = Dimensions.get('window').height;
+  const post = useLocalSearchParams();
+
+  useEffect(() => {
+    if (post && post.id) {
+      setFile(post.file);
+      setPostContent(Array.isArray(post.body) ? post.body.join(' ') : post.body);
+    }
+  }, []);
 
   const onPick = async () => {
     let res = await ImagePicker.launchImageLibraryAsync({
@@ -90,11 +95,13 @@ const NewPost = () => {
       return;
     }
 
-    let data = {
+    let data: { file: any; body: string; userId: any; id?: string } = {
       file,
       body: postContent,
       userId: user?.id,
     };
+
+    if (post && post.id) data.id = post.id as string;
 
     setLoading(true);
     let res = await createOrUpdatePost(data);
@@ -189,7 +196,7 @@ const NewPost = () => {
             </View>
             <View style={{ marginTop: 16 }}>
               <Button onPress={onSubmit} disabled={loading}>
-                {loading ? <Loading /> : <Text>Posting</Text>}
+                {loading ? <Loading /> : <Text>{post && post.id ? 'Update' : 'Posting'}</Text>}
               </Button>
             </View>
           </ScrollView>

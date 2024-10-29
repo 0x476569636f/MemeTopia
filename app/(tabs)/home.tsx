@@ -74,6 +74,18 @@ const Home = () => {
     if (payload.eventType == 'DELETE' && payload.old.id) {
       setPosts((prevPost) => prevPost?.filter((post) => post.id != payload.old.id));
     }
+    if (payload.eventType == 'UPDATE' && payload?.new?.id) {
+      setPosts((prevPost) => {
+        let newPosts = prevPost?.map((post) => {
+          if (post.id == payload.new.id) {
+            post.body = payload.new.body;
+            post.file = payload.new.file;
+          }
+          return post;
+        });
+        return newPosts;
+      });
+    }
   };
 
   useEffect(() => {
