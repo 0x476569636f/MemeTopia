@@ -30,6 +30,7 @@ import { ResizeMode, Video } from 'expo-av';
 import { createOrUpdatePost } from '~/functions/post';
 import Loading from '~/components/Loading';
 import { Feather } from '@expo/vector-icons';
+import ImageViewer from 'react-native-image-zoom-viewer';
 
 const NewPost = () => {
   const router = useRouter();
@@ -214,14 +215,12 @@ const NewPost = () => {
             onPress={() => setShowFullScreen(false)}>
             <Feather name="x" size={30} color="white" />
           </TouchableOpacity>
-          <Image
-            source={{ uri: getFileUri(file) }}
-            style={{
-              width: screenWidth,
-              height: screenHeight,
-              flex: 1,
-              resizeMode: 'contain',
-            }}
+          <ImageViewer
+            imageUrls={[{ url: getFileUri(file) as string }] as any}
+            enableSwipeDown
+            onSwipeDown={() => setShowFullScreen(false)}
+            backgroundColor="rgba(0,0,0,0.9)"
+            renderIndicator={() => <></>}
           />
         </View>
       </Modal>
