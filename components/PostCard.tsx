@@ -1,13 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import {
-  View,
-  TouchableOpacity,
-  Modal,
-  Dimensions,
-  Animated,
-  Share,
-  ActivityIndicator,
-} from 'react-native';
+import { View, TouchableOpacity, Modal, Animated, ActivityIndicator } from 'react-native';
 import { Feather, FontAwesome } from '@expo/vector-icons';
 import { useColorScheme } from '~/lib/useColorScheme';
 import Avatar from './Avatar';
@@ -21,6 +13,8 @@ import { useIsFocused } from '@react-navigation/native';
 import { createPostLike, removePostLike } from '~/functions/post';
 import * as Sharing from 'expo-sharing';
 import CommentModal from './CommentModal';
+import { useActionSheet } from '@expo/react-native-action-sheet';
+import ImageViewer from 'react-native-image-zoom-viewer';
 
 let currentPlayingVideo: Video | null = null;
 
@@ -40,20 +34,19 @@ const PostCard: React.FC<PostCardProps> = ({
   isVisible,
 }) => {
   const isFocused = useIsFocused();
-  const { isDarkColorScheme } = useColorScheme();
+  const { isDarkColorScheme, colorScheme, colors } = useColorScheme();
   const formattedDate = formatDate(item?.created_at);
   const videoRef = useRef<Video>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [showFullScreen, setShowFullScreen] = useState(false);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
-  const screenWidth = Dimensions.get('window').width;
-  const screenHeight = Dimensions.get('window').height;
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [commentCount, setCommentCount] = useState(0);
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const [isLoadingShare, setIsLoadingShare] = useState(false);
   const [showCommentModal, setShowCommentModal] = useState(false);
+  const { showActionSheetWithOptions } = useActionSheet();
 
   useEffect(() => {
     const handleVideoPlayback = async () => {
@@ -187,6 +180,50 @@ const PostCard: React.FC<PostCardProps> = ({
     }
   };
 
+  const handleOptions = () => {
+    let options = ['Edit', 'Delete', 'Cancel'];
+    let destructiveButtonIndex = 1;
+    let cancelButtonIndex = 2;
+
+    if (currentUser?.id === process.env.EXPO_PUBLIC_ADMIN_ID && currentUser?.id !== item?.userId) {
+      options = options.filter((option) => option !== 'Edit');
+      destructiveButtonIndex = 0;
+      cancelButtonIndex = 1;
+    }
+    showActionSheetWithOptions(
+      {
+        options,
+        cancelButtonIndex,
+        destructiveButtonIndex,
+        containerStyle: {
+          backgroundColor: colorScheme === 'dark' ? 'black' : 'white',
+        },
+        textStyle: {
+          color: colors.foreground,
+        },
+      },
+      (selectedIndex) => {
+        switch (selectedIndex) {
+          case 0:
+            if (options[0] === 'Edit') {
+              console.log('Edit clicked');
+            } else {
+              console.log('Delete clicked');
+            }
+
+          case destructiveButtonIndex:
+            // Delete
+            console.log('Delete clicked');
+            break;
+
+          case cancelButtonIndex:
+            // Canceled
+            break;
+        }
+      }
+    );
+  };
+
   return (
     <>
       <View
@@ -197,11 +234,16 @@ const PostCard: React.FC<PostCardProps> = ({
             <Text className="text-[17px] font-semibold leading-6">{item?.user?.name}</Text>
             <Text className="text-[13px] leading-5">{formattedDate}</Text>
           </View>
-          <Feather
-            name="more-horizontal"
-            size={16}
-            color={isDarkColorScheme ? 'rgb(0, 123, 254)' : 'black'}
-          />
+          {(currentUser?.id === item?.userId ||
+            currentUser?.id == process.env.EXPO_PUBLIC_ADMIN_ID) && (
+            <TouchableOpacity onPress={handleOptions}>
+              <Feather
+                name="more-horizontal"
+                size={16}
+                color={colorScheme === 'dark' ? 'rgb(0, 123, 254)' : 'black'}
+              />
+            </TouchableOpacity>
+          )}
         </View>
         {item?.body && (
           <Text className="mb-2 text-base leading-5 text-card-foreground">{item?.body}</Text>
@@ -307,14 +349,12 @@ const PostCard: React.FC<PostCardProps> = ({
             onPress={() => setShowFullScreen(false)}>
             <Feather name="x" size={30} color="white" />
           </TouchableOpacity>
-          <Image
-            source={{ uri: getSupabaseFileUrl(item?.file)?.uri }}
-            style={{
-              width: screenWidth,
-              height: screenHeight,
-              flex: 1,
-              resizeMode: 'contain',
-            }}
+          <ImageViewer
+            imageUrls={[{ url: getSupabaseFileUrl(item?.file)?.uri as string }] as any}
+            enableSwipeDown
+            onSwipeDown={() => setShowFullScreen(false)}
+            backgroundColor="rgba(0,0,0,0.9)"
+            renderIndicator={() => <></>}
           />
         </View>
       </Modal>
